@@ -25,7 +25,7 @@ abstract class AuthService {
   Future<void> sendVerificationEmail();
 
   /// Re-fetches the user so `emailVerified` is up to date.
-  Future<void> reloadUser();
+  Future<bool> reloadUser();
   Future<void> signOut();
 }
 
@@ -128,14 +128,15 @@ class MockAuthService implements AuthService {
   }
 
   @override
-  Future<void> reloadUser() async {
+  Future<bool> reloadUser() async {
     await _latency();
     final user = _current;
-    if (user == null) return;
+    if (user == null) return false;
     // The mock treats "checking" as the moment the user verified.
     final verified = user.copyWith(emailVerified: true);
     _accounts[user.email]?.user = verified;
     _setCurrent(verified);
+    return true;
   }
 
   @override
