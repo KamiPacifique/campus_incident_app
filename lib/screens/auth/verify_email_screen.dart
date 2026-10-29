@@ -51,11 +51,12 @@ class VerifyEmailScreen extends StatelessWidget {
             label: 'I have verified my email',
             isLoading: auth.isLoading,
             onPressed: () async {
-              final ok = await auth.checkVerified();
+              final verified = await auth.checkVerified();
               if (!context.mounted) return;
-              if (ok && !(auth.user?.emailVerified ?? false)) {
+              if (!verified && auth.error == null) {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Not verified yet. Open the link in your email first.'),
+                  content: Text(
+                      'Not verified yet. Open the link in your email first.'),
                 ));
               }
             },
