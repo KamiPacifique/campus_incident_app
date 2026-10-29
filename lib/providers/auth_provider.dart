@@ -36,7 +36,13 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> resendVerification() =>
       _run(() => _service.sendVerificationEmail());
 
-  Future<bool> checkVerified() => _run(() => _service.reloadUser());
+  Future<bool> checkVerified() async {
+    var verified = false;
+    final ok = await _run(() async {
+      verified = await _service.reloadUser();
+    });
+    return ok && verified;
+  }
 
   Future<void> signOut() => _service.signOut();
 
