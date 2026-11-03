@@ -15,13 +15,25 @@ class StatusChip extends StatelessWidget {
         color: status.background,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(
-        status.label,
-        style: TextStyle(
-          color: status.color,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration:
+                BoxDecoration(color: status.color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            status.label,
+            style: TextStyle(
+              color: status.color,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }

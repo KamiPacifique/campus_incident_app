@@ -44,7 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return AuthScaffold(
       title: 'Welcome back',
-      subtitle: 'Sign in with your ALU email to report and track campus issues.',
+      subtitle:
+          'Sign in with your ALU email to report and track campus issues.',
       child: Form(
         key: _formKey,
         child: Column(
@@ -62,8 +63,10 @@ class _LoginScreenState extends State<LoginScreen> {
               textInputAction: TextInputAction.next,
               validator: Validators.aluEmail,
               onChanged: (_) => auth.clearError(),
-              decoration:
-                  const InputDecoration(hintText: 'name@alustudent.com'),
+              decoration: const InputDecoration(
+                hintText: 'name@alustudent.com',
+                prefixIcon: Icon(Icons.alternate_email_rounded),
+              ),
             ),
             const SizedBox(height: 16),
             const FormLabel('Password'),
@@ -77,6 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
               onChanged: (_) => auth.clearError(),
               decoration: InputDecoration(
                 hintText: 'Your password',
+                prefixIcon: const Icon(Icons.lock_outline_rounded),
                 suffixIcon: IconButton(
                   tooltip: _obscure ? 'Show password' : 'Hide password',
                   icon: Icon(_obscure
@@ -88,7 +92,11 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 24),
             PrimaryButton(
-                label: 'Sign in', onPressed: _submit, isLoading: auth.isLoading),
+              label: 'Sign in',
+              icon: Icons.login_rounded,
+              onPressed: _submit,
+              isLoading: auth.isLoading,
+            ),
             const SizedBox(height: 12),
             Center(
               child: TextButton(
@@ -120,14 +128,23 @@ class _DemoAccounts extends StatelessWidget {
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.primarySoft,
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.accentSoft,
+        borderRadius: BorderRadius.circular(14),
       ),
-      child: const Text(
-        'Demo accounts (debug only)\n'
-        'Student: student@alustudent.com / Student123\n'
-        'Staff: staff@alueducation.com / Staff1234',
-        style: TextStyle(fontSize: 12, color: AppColors.ink, height: 1.5),
+      child: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.science_outlined, color: AppColors.accent, size: 20),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Demo accounts (debug only)\n'
+              'Student: student@alustudent.com / Student123\n'
+              'Staff: staff@alueducation.com / Staff1234',
+              style: TextStyle(fontSize: 12, color: AppColors.ink, height: 1.5),
+            ),
+          ),
+        ],
       ),
     );
   }

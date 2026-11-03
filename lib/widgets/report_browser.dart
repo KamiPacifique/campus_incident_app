@@ -41,6 +41,7 @@ class _ReportBrowserState extends State<ReportBrowser> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<IncidentProvider>();
+    final category = provider.categoryFilter;
 
     return Column(
       children: [
@@ -49,53 +50,85 @@ class _ReportBrowserState extends State<ReportBrowser> {
           child: Row(
             children: [
               Expanded(
-                child: TextField(
-                  controller: _search,
-                  onChanged: provider.setQuery,
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                    hintText: 'Search reports',
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    suffixIcon: _search.text.isEmpty
-                        ? null
-                        : IconButton(
-                            icon: const Icon(Icons.close_rounded),
-                            onPressed: () {
-                              _search.clear();
-                              provider.setQuery('');
-                            },
-                          ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: AppShadows.card,
+                  ),
+                  child: TextField(
+                    controller: _search,
+                    onChanged: provider.setQuery,
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      hintText: 'Search title, location…',
+                      prefixIcon: const Icon(Icons.search_rounded),
+                      suffixIcon: _search.text.isEmpty
+                          ? null
+                          : IconButton(
+                              icon: const Icon(Icons.close_rounded),
+                              onPressed: () {
+                                _search.clear();
+                                provider.setQuery('');
+                              },
+                            ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               _CategoryFilterButton(provider: provider),
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         SizedBox(
-          height: 36,
+          height: 38,
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             children: [
               _StatusChoice(
                 label: 'All',
+                color: AppColors.primary,
                 selected: provider.statusFilter == null,
                 onTap: () => provider.setStatusFilter(null),
               ),
               for (final s in IncidentStatus.values)
                 _StatusChoice(
                   label: s.label,
+                  color: s.color,
+                  icon: s.icon,
                   selected: provider.statusFilter == s,
                   onTap: () => provider.setStatusFilter(s),
                 ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        if (category != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: InputChip(
+                avatar: Icon(category.icon, color: category.color, size: 18),
+                label: Text(category.label),
+                labelStyle: TextStyle(
+                    color: category.color, fontWeight: FontWeight.w700),
+                backgroundColor: category.background,
+                side: BorderSide.none,
+                deleteIconColor: category.color,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                onDeleted: () => provider.setCategoryFilter(null),
+              ),
+            ),
+          ),
+        const SizedBox(height: 14),
         Expanded(child: _buildBody(provider)),
       ],
     );
@@ -129,7 +162,7 @@ class _ReportBrowserState extends State<ReportBrowser> {
         );
       }
       return EmptyState(
-        icon: Icons.description_outlined,
+        icon: Icons.inbox_rounded,
         title: widget.emptyTitle,
         message: widget.emptyMessage,
       );
@@ -137,7 +170,7 @@ class _ReportBrowserState extends State<ReportBrowser> {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
       itemCount: widget.items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (_, i) => IncidentCard(
         incident: widget.items[i],
         showReporter: widget.showReporter,
@@ -149,30 +182,37 @@ class _ReportBrowserState extends State<ReportBrowser> {
 class _StatusChoice extends StatelessWidget {
   const _StatusChoice({
     required this.label,
+    required this.color,
     required this.selected,
     required this.onTap,
+    this.icon,
   });
 
   final String label;
+  final Color color;
+  final IconData? icon;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final fg = selected ? Colors.white : AppColors.ink;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: ChoiceChip(
+        avatar: icon == null
+            ? null
+            : Icon(icon, size: 16, color: selected ? Colors.white : color),
         label: Text(label),
         selected: selected,
         onSelected: (_) => onTap(),
         showCheckmark: false,
-        selectedColor: AppColors.primary,
-        backgroundColor: Colors.white,
-        side: BorderSide(
-            color: selected ? AppColors.primary : AppColors.border),
+        selectedColor: color,
+        backgroundColor: AppColors.surface,
+        side: BorderSide(color: selected ? color : AppColors.border),
         labelStyle: TextStyle(
-          color: selected ? Colors.white : AppColors.muted,
-          fontWeight: FontWeight.w600,
+          color: fg,
+          fontWeight: FontWeight.w700,
           fontSize: 13,
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -198,23 +238,28 @@ class _CategoryFilterButton extends StatelessWidget {
           PopupMenuItem(
             value: c.name,
             child: Row(children: [
-              Icon(c.icon, size: 20, color: AppColors.primary),
-              const SizedBox(width: 10),
+              Container(
+                width: 32,
+                height: 32,
+                decoration:
+                    BoxDecoration(color: c.background, shape: BoxShape.circle),
+                child: Icon(c.icon, size: 18, color: c.color),
+              ),
+              const SizedBox(width: 12),
               Text(c.label),
             ]),
           ),
       ],
       child: Container(
-        width: 48,
-        height: 48,
+        width: 50,
+        height: 50,
         decoration: BoxDecoration(
-          color: active ? AppColors.primary : Colors.white,
+          color: active ? AppColors.primary : AppColors.surface,
           borderRadius: BorderRadius.circular(14),
-          border:
-              Border.all(color: active ? AppColors.primary : AppColors.border),
+          boxShadow: AppShadows.card,
         ),
         child: Icon(Icons.tune_rounded,
-            color: active ? Colors.white : AppColors.muted),
+            color: active ? Colors.white : AppColors.ink),
       ),
     );
   }

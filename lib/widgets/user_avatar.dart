@@ -14,14 +14,18 @@ class UserAvatar extends StatelessWidget {
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        color: AppColors.primarySoft,
+      decoration: BoxDecoration(
+        gradient: AppGradients.accent,
         shape: BoxShape.circle,
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.85),
+          width: size > 56 ? 3 : 2,
+        ),
       ),
       child: Text(
         initialsOf(name),
         style: TextStyle(
-          color: AppColors.primary,
+          color: Colors.white,
           fontWeight: FontWeight.w800,
           fontSize: size * 0.36,
         ),

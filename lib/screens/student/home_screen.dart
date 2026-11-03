@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/incident.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/incident_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/formatters.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_banner.dart';
+import '../../widgets/gradient_header.dart';
 import '../../widgets/incident_card.dart';
 import '../../widgets/stat_tile.dart';
+import '../../widgets/ui_extensions.dart';
 import '../../widgets/user_avatar.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.onReport, required this.onSeeAll});
+  const HomeScreen({
+    super.key,
+    required this.onReport,
+    required this.onQuickReport,
+    required this.onSeeAll,
+  });
 
   final VoidCallback onReport;
+  final ValueChanged<IncidentCategory> onQuickReport;
   final VoidCallback onSeeAll;
 
   @override
@@ -25,98 +35,74 @@ class HomeScreen extends StatelessWidget {
     final firstName = user.name.split(' ').first;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      padding: EdgeInsets.zero,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Hello, $firstName',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.ink,
-                ),
-              ),
+        GradientHeader(
+          title: '${greeting()}, $firstName',
+          subtitle: 'Help keep our campus safe and running smoothly.',
+          trailing: UserAvatar(name: user.name, size: 48),
+          bottom: StatRow(tiles: [
+            StatTile(
+              value: stats.total,
+              label: 'My reports',
+              icon: Icons.description_rounded,
             ),
-            UserAvatar(name: user.name),
-          ],
+            StatTile(
+              value: stats.submitted,
+              label: 'Submitted',
+              icon: IncidentStatus.submitted.icon,
+              color: AppColors.warning,
+            ),
+            StatTile(
+              value: stats.inProgress,
+              label: 'In progress',
+              icon: IncidentStatus.inProgress.icon,
+              color: AppColors.info,
+            ),
+            StatTile(
+              value: stats.resolved,
+              label: 'Resolved',
+              icon: IncidentStatus.resolved.icon,
+              color: AppColors.success,
+            ),
+          ]),
         ),
-        const SizedBox(height: 4),
-        const Text(
-          'Help make our campus safer. Report issues and track their resolution.',
-          style: TextStyle(color: AppColors.muted, fontSize: 15, height: 1.4),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _ReportBanner(onReport: onReport),
+              const SizedBox(height: 24),
+              const _SectionHeader(title: 'Quick report'),
+              const SizedBox(height: 12),
+              _QuickCategories(onSelected: onQuickReport),
+              const SizedBox(height: 20),
+              _SectionHeader(title: 'Recent reports', onSeeAll: onSeeAll),
+              const SizedBox(height: 8),
+              if (incidents.isLoading)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 32),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (incidents.loadError != null)
+                ErrorBanner(
+                    message: incidents.loadError!, onRetry: incidents.retry)
+              else if (recent.isEmpty)
+                const EmptyState(
+                  icon: Icons.campaign_rounded,
+                  title: 'No reports yet',
+                  message:
+                      'Spotted something broken? Tap “Report an issue” to tell campus staff.',
+                )
+              else
+                for (final incident in recent) ...[
+                  IncidentCard(incident: incident),
+                  const SizedBox(height: 12),
+                ],
+            ],
+          ),
         ),
-        const SizedBox(height: 20),
-        _ReportBanner(onReport: onReport),
-        const SizedBox(height: 24),
-        const _SectionHeader(title: 'Report summary'),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: StatTile(
-                value: stats.total,
-                label: 'My reports',
-                icon: Icons.description_rounded,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: StatTile(
-                value: stats.inProgress,
-                label: 'In progress',
-                icon: Icons.schedule_rounded,
-                color: AppColors.primary,
-                background: const Color(0xFFEAF0FF),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: StatTile(
-                value: stats.resolved,
-                label: 'Resolved',
-                icon: Icons.check_circle_rounded,
-                color: AppColors.success,
-                background: AppColors.successSoft,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: StatTile(
-                value: stats.submitted,
-                label: 'Submitted',
-                icon: Icons.error_rounded,
-                color: AppColors.danger,
-                background: AppColors.dangerSoft,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        _SectionHeader(title: 'Recent reports', onSeeAll: onSeeAll),
-        const SizedBox(height: 12),
-        if (incidents.isLoading)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 32),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        else if (incidents.loadError != null)
-          ErrorBanner(
-              message: incidents.loadError!, onRetry: incidents.retry)
-        else if (recent.isEmpty)
-          const EmptyState(
-            icon: Icons.campaign_outlined,
-            title: 'No reports yet',
-            message: 'Spotted something broken? Tap “Report an issue” to tell campus staff.',
-          )
-        else
-          for (final incident in recent) ...[
-            IncidentCard(incident: incident),
-            const SizedBox(height: 10),
-          ],
       ],
     );
   }
@@ -132,11 +118,15 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title,
-            style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: AppColors.ink)),
+        Flexible(
+          child: Text(title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.ink)),
+        ),
         if (onSeeAll != null)
           TextButton(onPressed: onSeeAll, child: const Text('See all')),
       ],
@@ -151,64 +141,146 @@ class _ReportBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF5B3DF5), Color(0xFF8E7BFF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        gradient: AppGradients.accent,
+        boxShadow: AppShadows.glow(AppColors.accent),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: Stack(
+          children: [
+            const Positioned.fill(child: DecorativeBubbles(opacity: 0.12)),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'See an issue\non campus?',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 23,
+                              fontWeight: FontWeight.w800,
+                              height: 1.15),
+                        ),
+                      ),
+                      Icon(Icons.campaign_rounded,
+                          color: Colors.white, size: 52),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Report it in under a minute and track it until it is fixed.',
+                    style: TextStyle(
+                        color: Colors.white, fontSize: 14, height: 1.4),
+                  ),
+                  const SizedBox(height: 16),
+                  Material(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: onReport,
+                      child: const Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor: AppColors.accent,
+                              child: Icon(Icons.add_rounded,
+                                  color: Colors.white, size: 20),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Text('Report an issue',
+                                  style: TextStyle(
+                                      color: AppColors.ink,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700)),
+                            ),
+                            Icon(Icons.arrow_forward_rounded,
+                                color: AppColors.accent),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'See an issue\non campus?',
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-                height: 1.15),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Report it and help improve our learning environment.',
-            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
-          ),
-          const SizedBox(height: 16),
-          Material(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
+    );
+  }
+}
+
+/// One-tap shortcuts that open the report form with a category preselected.
+class _QuickCategories extends StatelessWidget {
+  const _QuickCategories({required this.onSelected});
+  final ValueChanged<IncidentCategory> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 92,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
+        itemCount: IncidentCategory.values.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (_, i) {
+          final c = IncidentCategory.values[i];
+          return Semantics(
+            button: true,
+            label: 'Report ${c.label} issue',
             child: InkWell(
-              borderRadius: BorderRadius.circular(14),
-              onTap: onReport,
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                child: Row(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => onSelected(c),
+              child: SizedBox(
+                width: 72,
+                child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 14,
-                      backgroundColor: AppColors.primary,
-                      child: Icon(Icons.add_rounded,
-                          color: Colors.white, size: 20),
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: AppShadows.card,
+                      ),
+                      child: Center(
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                              color: c.background, shape: BoxShape.circle),
+                          child: Icon(c.icon, color: c.color, size: 22),
+                        ),
+                      ),
                     ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text('Report an issue',
-                          style: TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 8),
+                    Text(
+                      c.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.ink),
                     ),
-                    Icon(Icons.chevron_right_rounded,
-                        color: AppColors.primary),
                   ],
                 ),
               ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

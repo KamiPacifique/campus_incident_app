@@ -82,7 +82,8 @@ class FirebaseAuthService implements AuthService {
       // Profile write failed: remove the half-created account so the
       // student can try again cleanly.
       await created?.delete().catchError((_) {});
-      throw AuthException('Could not save your profile (${e.code}). Try again.');
+      throw AuthException(
+          'Could not save your profile (${e.code}). Try again.');
     }
   }
 

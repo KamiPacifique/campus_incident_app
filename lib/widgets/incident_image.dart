@@ -11,6 +11,7 @@ class IncidentImage extends StatelessWidget {
     super.key,
     required this.path,
     required this.fallbackIcon,
+    this.color = AppColors.primary,
     this.width,
     this.height,
     this.radius = 12,
@@ -18,14 +19,17 @@ class IncidentImage extends StatelessWidget {
 
   final String? path;
   final IconData fallbackIcon;
+
+  /// Tint for the placeholder, usually the incident category colour.
+  final Color color;
   final double? width;
   final double? height;
   final double radius;
 
   Widget _placeholder() => Container(
-        color: AppColors.primarySoft,
+        color: color.withValues(alpha: 0.12),
         alignment: Alignment.center,
-        child: Icon(fallbackIcon, color: AppColors.primary, size: 28),
+        child: Icon(fallbackIcon, color: color, size: 28),
       );
 
   @override

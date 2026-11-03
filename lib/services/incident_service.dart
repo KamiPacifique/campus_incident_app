@@ -19,8 +19,8 @@ class MockIncidentService implements IncidentService {
   final List<Incident> _items;
   final _controller = StreamController<List<Incident>>.broadcast();
 
-  List<Incident> _sorted() => List.of(_items)
-    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  List<Incident> _sorted() =>
+      List.of(_items)..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
   Future<void> _latency([int ms = 700]) =>
       Future.delayed(Duration(milliseconds: ms));

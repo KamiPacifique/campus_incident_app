@@ -20,85 +20,89 @@ class IncidentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => IncidentDetailsScreen(incidentId: incident.id),
-        )),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              IncidentImage(
-                path: incident.imageUrl,
-                fallbackIcon: incident.category.icon,
-                width: 64,
-                height: 64,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      incident.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.ink,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      incident.location,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 13, color: AppColors.muted),
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Icon(
-                          showReporter
-                              ? Icons.person_outline_rounded
-                              : Icons.calendar_today_outlined,
-                          size: 14,
-                          color: AppColors.muted,
-                        ),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            showReporter
-                                ? '${incident.reporterName} · ${timeAgo(incident.createdAt)}'
-                                : timeAgo(incident.createdAt),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 12, color: AppColors.muted),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+    final category = incident.category;
+    const muted = TextStyle(fontSize: 12.5, color: AppColors.muted);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: AppShadows.card,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => IncidentDetailsScreen(incidentId: incident.id),
+          )),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                IncidentImage(
+                  path: incident.imageUrl,
+                  fallbackIcon: category.icon,
+                  color: category.color,
+                  width: 72,
+                  height: 72,
+                  radius: 14,
                 ),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  StatusChip(status: incident.status),
-                  const SizedBox(height: 10),
-                  const Icon(Icons.chevron_right_rounded,
-                      color: AppColors.muted),
-                ],
-              ),
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        incident.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.ink,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(category.icon, size: 14, color: category.color),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              '${category.label} · ${incident.location}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: muted,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          StatusChip(status: incident.status),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              showReporter
+                                  ? '${incident.reporterName} · ${timeAgo(incident.createdAt)}'
+                                  : timeAgo(incident.createdAt),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                              style: muted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.chevron_right_rounded, color: AppColors.muted),
+              ],
+            ),
           ),
         ),
       ),

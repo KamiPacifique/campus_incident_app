@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../models/incident.dart';
 import '../../theme/app_theme.dart';
 import '../shared/profile_screen.dart';
 import 'home_screen.dart';
@@ -16,9 +17,10 @@ class StudentShell extends StatefulWidget {
 class _StudentShellState extends State<StudentShell> {
   int _index = 0;
 
-  void _openReport() {
+  void _openReport([IncidentCategory? category]) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const ReportFormScreen()),
+      MaterialPageRoute(
+          builder: (_) => ReportFormScreen(initialCategory: category)),
     );
   }
 
@@ -27,26 +29,32 @@ class _StudentShellState extends State<StudentShell> {
     final pages = [
       HomeScreen(
         onReport: _openReport,
+        onQuickReport: _openReport,
         onSeeAll: () => setState(() => _index = 1),
       ),
       const MyReportsScreen(),
       const ProfileScreen(),
     ];
 
+    // Each tab draws its own gradient header behind the status bar.
     return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: IndexedStack(index: _index, children: pages),
-      ),
+      body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: AppColors.border)),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x1A0F1E2E),
+              blurRadius: 20,
+              offset: Offset(0, -4),
+            ),
+          ],
         ),
         child: SafeArea(
           top: false,
           child: SizedBox(
-            height: 68,
+            height: 72,
             child: Row(
               children: [
                 _NavItem(
@@ -74,21 +82,16 @@ class _StudentShellState extends State<StudentShell> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            width: 44,
-                            height: 44,
-                            decoration: const BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              gradient: AppGradients.accent,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: AppShadows.glow(AppColors.accent),
                             ),
                             child: const Icon(Icons.add_rounded,
-                                color: Colors.white, size: 28),
+                                color: Colors.white, size: 30),
                           ),
-                          const SizedBox(height: 2),
-                          const Text('Report',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.muted,
-                                  fontWeight: FontWeight.w600)),
                         ],
                       ),
                     ),
@@ -139,13 +142,25 @@ class _NavItem extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(selected ? activeIcon : icon, color: color, size: 26),
-              const SizedBox(height: 2),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+                decoration: BoxDecoration(
+                  color: selected ? AppColors.primarySoft : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child:
+                    Icon(selected ? activeIcon : icon, color: color, size: 24),
+              ),
+              const SizedBox(height: 4),
               Text(label,
                   style: TextStyle(
                       fontSize: 12,
                       color: color,
-                      fontWeight: FontWeight.w600)),
+                      fontWeight:
+                          selected ? FontWeight.w800 : FontWeight.w600)),
             ],
           ),
         ),

@@ -51,7 +51,7 @@ class _CategoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = isSelected ? Colors.white : AppColors.muted;
+    final color = category.color;
     return Semantics(
       button: true,
       selected: isSelected,
@@ -59,23 +59,38 @@ class _CategoryTile extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
+          duration: const Duration(milliseconds: 180),
           width: width,
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            color: isSelected ? color : AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-                color: isSelected ? AppColors.primary : AppColors.border),
+                color: isSelected ? color : AppColors.border, width: 1.2),
+            boxShadow: isSelected ? AppShadows.glow(color) : null,
           ),
           child: Column(
             children: [
-              Icon(category.icon, color: fg, size: 24),
-              const SizedBox(height: 6),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Colors.white.withValues(alpha: 0.22)
+                      : category.background,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(category.icon,
+                    color: isSelected ? Colors.white : color, size: 22),
+              ),
+              const SizedBox(height: 8),
               Text(
                 category.label,
                 style: TextStyle(
-                    color: fg, fontSize: 12, fontWeight: FontWeight.w600),
+                  color: isSelected ? Colors.white : AppColors.ink,
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),

@@ -17,6 +17,7 @@ class VerifyEmailScreen extends StatelessWidget {
 
     return AuthScaffold(
       title: 'Verify your email',
+      icon: Icons.mark_email_unread_rounded,
       subtitle: 'We sent a verification link to $email. '
           'Open it, then come back and continue.',
       child: Column(
@@ -30,12 +31,11 @@ class VerifyEmailScreen extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: AppColors.primarySoft,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: const Row(
               children: [
-                Icon(Icons.mark_email_unread_outlined,
-                    color: AppColors.primary),
+                Icon(Icons.info_outline_rounded, color: AppColors.primary),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -49,6 +49,7 @@ class VerifyEmailScreen extends StatelessWidget {
           const SizedBox(height: 24),
           PrimaryButton(
             label: 'I have verified my email',
+            icon: Icons.verified_rounded,
             isLoading: auth.isLoading,
             onPressed: () async {
               final verified = await auth.checkVerified();
@@ -62,16 +63,17 @@ class VerifyEmailScreen extends StatelessWidget {
             },
           ),
           const SizedBox(height: 12),
-          OutlinedButton(
+          OutlinedButton.icon(
+            icon: const Icon(Icons.send_rounded, size: 18),
             onPressed: auth.isLoading
                 ? null
                 : () async {
                     final ok = await auth.resendVerification();
                     if (!context.mounted || !ok) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Verification email sent.')));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Verification email sent.')));
                   },
-            child: const Text('Resend email'),
+            label: const Text('Resend email'),
           ),
           const SizedBox(height: 8),
           Center(

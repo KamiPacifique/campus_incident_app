@@ -66,7 +66,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.next,
               validator: Validators.name,
-              decoration: const InputDecoration(hintText: 'Amina Hassan'),
+              decoration: const InputDecoration(
+                hintText: 'Amina Hassan',
+                prefixIcon: Icon(Icons.person_outline_rounded),
+              ),
             ),
             const SizedBox(height: 16),
             const FormLabel('ALU email'),
@@ -75,11 +78,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               validator: Validators.aluEmail,
-              decoration:
-                  const InputDecoration(hintText: 'name@alustudent.com'),
+              decoration: const InputDecoration(
+                hintText: 'name@alustudent.com',
+                prefixIcon: Icon(Icons.alternate_email_rounded),
+              ),
             ),
             const SizedBox(height: 16),
-            const FormLabel('Password', hint: '(8+ characters, letters and numbers)'),
+            const FormLabel('Password',
+                hint: '(8+ characters, letters and numbers)'),
             TextFormField(
               controller: _password,
               obscureText: _obscure,
@@ -87,6 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               validator: Validators.password,
               decoration: InputDecoration(
                 hintText: 'Create a password',
+                prefixIcon: const Icon(Icons.lock_outline_rounded),
                 suffixIcon: IconButton(
                   tooltip: _obscure ? 'Show password' : 'Hide password',
                   icon: Icon(_obscure
@@ -104,12 +111,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _submit(),
               validator: (v) => Validators.confirmPassword(v, _password.text),
-              decoration:
-                  const InputDecoration(hintText: 'Re-enter your password'),
+              decoration: const InputDecoration(
+                hintText: 'Re-enter your password',
+                prefixIcon: Icon(Icons.lock_reset_rounded),
+              ),
             ),
             const SizedBox(height: 24),
             PrimaryButton(
               label: 'Create account',
+              icon: Icons.person_add_alt_1_rounded,
               onPressed: _submit,
               isLoading: auth.isLoading,
             ),

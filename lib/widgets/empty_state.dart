@@ -20,20 +20,30 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Scrollable so it never overflows in short spaces (e.g. keyboard open).
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 72,
-              height: 72,
-              decoration: const BoxDecoration(
-                color: AppColors.primarySoft,
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: AppColors.primarySoft.withValues(alpha: 0.6),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: AppColors.primary, size: 32),
+              alignment: Alignment.center,
+              child: Container(
+                width: 68,
+                height: 68,
+                decoration: const BoxDecoration(
+                  color: AppColors.primarySoft,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: AppColors.primary, size: 32),
+              ),
             ),
             const SizedBox(height: 16),
             Text(
@@ -41,7 +51,7 @@ class EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(
                   fontSize: 17,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                   color: AppColors.ink),
             ),
             const SizedBox(height: 6),
@@ -52,7 +62,14 @@ class EmptyState extends StatelessWidget {
             ),
             if (actionLabel != null) ...[
               const SizedBox(height: 16),
-              TextButton(onPressed: onAction, child: Text(actionLabel!)),
+              FilledButton.tonal(
+                onPressed: onAction,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primarySoft,
+                  foregroundColor: AppColors.primary,
+                ),
+                child: Text(actionLabel!),
+              ),
             ],
           ],
         ),

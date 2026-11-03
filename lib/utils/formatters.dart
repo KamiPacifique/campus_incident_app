@@ -16,6 +16,13 @@ String fullDate(DateTime date) =>
 
 String shortDate(DateTime date) => DateFormat('MMM d, h:mm a').format(date);
 
+String greeting([DateTime? now]) {
+  final hour = (now ?? DateTime.now()).hour;
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
 String initialsOf(String name) {
   final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
   if (parts.isEmpty) return '?';

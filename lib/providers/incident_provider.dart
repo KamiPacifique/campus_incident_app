@@ -58,8 +58,8 @@ class IncidentProvider extends ChangeNotifier {
   // ----- lifecycle ----------------------------------------------------------
   /// Called by the ProxyProvider whenever the auth state changes.
   void updateUser(AppUser? user) {
-    final unchanged = user?.uid == _user?.uid &&
-        user?.emailVerified == _user?.emailVerified;
+    final unchanged =
+        user?.uid == _user?.uid && user?.emailVerified == _user?.emailVerified;
     if (unchanged) return;
 
     _user = user;
@@ -162,7 +162,8 @@ class IncidentProvider extends ChangeNotifier {
 
   Future<bool> delete(String id) => _act(() => _service.delete(id));
 
-  Future<bool> _act(Future<void> Function() action, {bool track = false}) async {
+  Future<bool> _act(Future<void> Function() action,
+      {bool track = false}) async {
     _actionError = null;
     if (track) {
       _isSubmitting = true;
@@ -172,7 +173,8 @@ class IncidentProvider extends ChangeNotifier {
       await action();
       return true;
     } catch (_) {
-      _actionError = 'That did not go through. Check your connection and try again.';
+      _actionError =
+          'That did not go through. Check your connection and try again.';
       return false;
     } finally {
       if (track) _isSubmitting = false;
