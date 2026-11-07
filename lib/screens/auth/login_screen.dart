@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
-import '../../theme/app_theme.dart';
 import '../../utils/validators.dart';
 import '../../widgets/error_banner.dart';
 import '../../widgets/form_label.dart';
@@ -110,41 +108,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: const Text('New here? Create an account'),
               ),
             ),
-            if (kDebugMode) const _DemoAccounts(),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// Visible in debug builds only, handy for the demo video.
-class _DemoAccounts extends StatelessWidget {
-  const _DemoAccounts();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.accentSoft,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: const Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.science_outlined, color: AppColors.accent, size: 20),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Demo accounts (debug only)\n'
-              'Student: student@alustudent.com / Student123\n'
-              'Staff: staff@alueducation.com / Staff1234',
-              style: TextStyle(fontSize: 12, color: AppColors.ink, height: 1.5),
-            ),
-          ),
-        ],
       ),
     );
   }

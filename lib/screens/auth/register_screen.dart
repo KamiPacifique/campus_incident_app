@@ -67,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               textInputAction: TextInputAction.next,
               validator: Validators.name,
               decoration: const InputDecoration(
-                hintText: 'Amina Hassan',
+                hintText: 'Jon Doe',
                 prefixIcon: Icon(Icons.person_outline_rounded),
               ),
             ),
